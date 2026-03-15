@@ -3,7 +3,7 @@ class ApplicationController < ActionController::Base
   helper_method :current_user, :user_signed_in?, :application_name
 
   def application_name
-    Config::APPLICATION_NAME
+    ENV['APPLICATION_NAME']
   end
 
   def current_user

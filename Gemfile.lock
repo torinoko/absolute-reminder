@@ -494,6 +494,7 @@ DEPENDENCIES
   bundler-audit
   capybara
   debug
+  dotenv
   google-apis-calendar_v3
   image_processing (~> 1.2)
   importmap-rails

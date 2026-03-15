@@ -1,7 +1,7 @@
 Rails.application.config.middleware.use OmniAuth::Builder do
   provider :google_oauth2,
-           Config::GOOGLE_CLIENT_ID,
-           Config::GOOGLE_CLIENT_SECRET,
+           ENV['GOOGLE_CLIENT_ID'],
+           ENV['GOOGLE_CLIENT_SECRET'],
            scope: 'openid, profile, email, calendar.readonly',
            skip_jwt: true,
            prompt: 'consent',
