@@ -1,0 +1,23 @@
+<section class="text-center mt-10">
+  <div class="mt-10">
+    <% if current_user %>
+      <p class="text-2xl">こんにちは、<%= current_user.name %>さん！</p>
+    <% else %>
+      <div class="mt-10">
+        <p>
+          カレンダーに登録した予定をいろんな手段でお知らせします。
+        </p>
+        <p>
+          もう予定をすっぽしたくないよ〜！
+        </p>
+        <p>
+          みなさんいつもごめんなさい！
+        </p>      </div>
+      <div class="mt-10">
+        <%= form_tag "/auth/google_oauth2", method: :post, data: {turbo: false} do %>
+          <button type="submit" class="px-4 py-2 rounded-lg bg-red-200 text-amber-800 hover:border-slate-200 hover:bg-red-300 hover:shadow transition duration-150">Googleでログイン</button>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</section>

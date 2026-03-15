@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= content_for(:title) || "Absolute Reminder" %></title>
+    <title><%= content_for(:title) || application_name %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="Absolute Reminder">
     <meta name="mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
@@ -15,15 +14,40 @@
     <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
 
     <link rel="icon" href="/icon.png" type="image/png">
-    <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Sawarabi+Gothic&display=swap" rel="stylesheet">
 
     <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
-    <%= javascript_importmap_tags %>
+    <link rel="stylesheet" href="/style.css" data-turbo-track="reload" />
   </head>
 
-  <body>
-    <%= yield %>
+  <body class="main-color">
+    <div class="flex flex-col min-h-screen leading-loose">
+      <header class="fixed top-0 left-0 right-0 bg-red-50/80 backdrop-blur-sm shadow-sm z-50">
+        <div class="max-w-4xl mx-auto flex items-center justify-between px-4 py-3">
+          <a href="/" class="flex items-center space-x-2">
+            <span class="text-xl font-semibold text-amber-900"><%= application_name %></span>
+          </a>
+          <span>
+            <%= link_to 'ログアウト', logout_path %>
+          </span>
+        </div>
+      </header>
+
+      <main class="flex-grow items-center mt-10">
+        <%= yield %>
+      </main>
+
+      <footer class="mt-10 py-6 text-center text-sm text-amber-700 bg-red-50 border-t border-red-200">
+        <div class="space-y-1">
+          <p>
+            <a href="/privacy" class="hover:underline">プライバシーポリシー</a> /
+            <a href="/terms" class="hover:underline">利用規約</a>
+          </p>
+          <p class="text-amber-700">&copy; <%= Time.current.year %> <%= application_name %></p>
+        </div>
+      </footer>
+    </div>
   </body>
 </html>
