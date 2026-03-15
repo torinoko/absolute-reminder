@@ -12,14 +12,20 @@ class SessionsController < ApplicationController
 
   private
 
+  def login(user)
+    session[:user_id] = user.id
+  end
+
+  def logout
+    session.delete(:user_id)
+    @current_user = nil
+  end
+
   def auth_hash
     request.env['omniauth.auth']
   end
 
   def find_or_create_from_auth_hash(auth_hash)
-    email = auth_hash['info']['email']
-    User.find_or_create_by(email:) do |user|
-      user.update!(uid: auth_hash['uid'], name: auth_hash['info']['name'])
-    end
+    OauthAuthenticator.call(auth_hash)
   end
 end
