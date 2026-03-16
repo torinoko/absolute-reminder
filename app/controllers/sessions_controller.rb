@@ -2,6 +2,7 @@ class SessionsController < ApplicationController
   def create
     user = find_or_create_from_auth_hash(auth_hash)
     login(user) if user
+    ScheduleSync.call(user)
     redirect_to root_path
   end
 

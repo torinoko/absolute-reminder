@@ -10,7 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_15_150519) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_16_131448) do
+  create_table "schedule_reminders", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "job_id"
+    t.integer "minutes", null: false
+    t.integer "reminder_method", null: false
+    t.integer "schedule_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["schedule_id"], name: "index_schedule_reminders_on_schedule_id"
+  end
+
   create_table "schedules", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "google_event_id", null: false
@@ -44,5 +54,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_15_150519) do
     t.index ["email"], name: "index_users_on_email", unique: true
   end
 
+  add_foreign_key "schedule_reminders", "schedules"
+  add_foreign_key "schedules", "users"
   add_foreign_key "user_profiles", "users"
 end
