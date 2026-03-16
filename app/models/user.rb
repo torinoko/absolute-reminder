@@ -2,6 +2,7 @@
 
 class User < ApplicationRecord
   has_many :user_profiles, dependent: :destroy
+  has_many :schedules, dependent: :destroy
 
   validates :name, presence: true, uniqueness: true
   validates :email, presence: true, uniqueness: true

@@ -10,7 +10,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_15_095556) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_15_150519) do
+  create_table "schedules", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "google_event_id", null: false
+    t.datetime "start_at", null: false
+    t.string "summary", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["user_id", "google_event_id"], name: "index_schedules_on_user_id_and_google_event_id", unique: true
+    t.index ["user_id"], name: "index_schedules_on_user_id"
+  end
+
   create_table "user_profiles", force: :cascade do |t|
     t.string "access_token"
     t.datetime "created_at", null: false
