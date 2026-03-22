@@ -1,7 +1,8 @@
 class SessionsController < ApplicationController
+  attr_reader :user
   def create
-    user = find_or_create_from_auth_hash(auth_hash)
-    login(user) if user
+    @user = find_or_create_from_auth_hash(auth_hash)
+    login if user
     ScheduleSync.call(user)
     redirect_to root_path
   end
@@ -13,7 +14,7 @@ class SessionsController < ApplicationController
 
   private
 
-  def login(user)
+  def login
     session[:user_id] = user.id
   end
 
