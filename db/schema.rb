@@ -10,7 +10,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_16_131448) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_22_071922) do
+  create_table "line_tokens", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "expires_at", null: false
+    t.string "token", null: false
+    t.string "uid", null: false
+    t.datetime "updated_at", null: false
+    t.index ["token"], name: "index_line_tokens_on_token", unique: true
+  end
+
   create_table "schedule_reminders", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "job_id"

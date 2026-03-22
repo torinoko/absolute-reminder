@@ -1,10 +1,11 @@
 class SessionsController < ApplicationController
   attr_reader :user
+
   def create
     @user = find_or_create_from_auth_hash(auth_hash)
     login if user
     ScheduleSync.call(user)
-    create_line_profile
+    destroy_line_token
     redirect_to root_path
   end
 
@@ -28,13 +29,17 @@ class SessionsController < ApplicationController
     request.env['omniauth.auth']
   end
 
-  def find_or_create_from_auth_hash(auth_hash)
-    OauthAuthenticator.call(auth_hash)
+  def destroy_line_token
+    LineToken.find_by(uid: session[:pending_line_uid]).destroy
+    session[:pending_line_uid] = nil
   end
 
-  def create_line_profile
-    line_uid = session[:pending_line_uid]
-    line_auth_hash = { provider: :line, uid: line_uid,  }
-    OauthAuthenticator.call(line_auth_hash)
+  def find_or_create_from_auth_hash(auth_hash)
+    user = OauthAuthenticator.call(auth_hash)
+    uid = session[:pending_line_uid]
+    if uid
+      user.user_profiles.create(provider: :line, uid: uid)
+    end
+    user
   end
 end

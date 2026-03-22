@@ -2,6 +2,7 @@
 
 class OauthAuthenticator
   attr_reader :auth_hash, :uid, :provider
+
   def self.call(auth_hash)
     new(auth_hash).authenticate
   end
