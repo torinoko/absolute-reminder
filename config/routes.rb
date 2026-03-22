@@ -6,8 +6,8 @@ Rails.application.routes.draw do
   get 'auth/failure', to: redirect('/')
   get 'logout', to: 'sessions#destroy'
 
-  namespace :line do
-    get 'setup_links', to: 'setup_links#show'
-    post 'webhooks', to: 'webhooks#create'
+  namespace :line_bot do
+    get 'setup', to: 'setup#show'
+    post 'webhook', to: 'webhook#create'
   end
 end

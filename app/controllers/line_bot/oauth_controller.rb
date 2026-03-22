@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Line
+module LineBot
   class OauthController < ApplicationController
     before_action :require_login # 既にGoogle等でログイン済みであることを前提とする
 
@@ -34,7 +34,7 @@ module Line
       profile_response = Line::Client.fetch_profile(access_token)
 
       # 3. UserProfileへの保存（トランザクションやService Objectへの切り出し推奨）
-      current_user.user_profiles.find_or_initialize_by(provider: 'line').update!(
+      current_user.user_profiles.find_or_initialize_by(provider: 'line_bot').update!(
         uid: profile_response['userId'],
         access_token: access_token,
         refresh_token: token_response['refresh_token'],
