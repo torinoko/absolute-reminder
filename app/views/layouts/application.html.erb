@@ -29,9 +29,11 @@
           <a href="/" class="flex items-center space-x-2">
             <span class="text-xl font-semibold text-amber-900"><%= application_name %></span>
           </a>
-          <span>
-            <%= link_to 'ログアウト', logout_path %>
-          </span>
+          <% if current_user %>
+            <span>
+              <%= link_to 'ログアウト', logout_path %>
+            </span>
+          <% end %>
         </div>
       </header>
 
