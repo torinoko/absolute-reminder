@@ -34,7 +34,7 @@ class SessionsController < ApplicationController
 
   def create_line_profile
     line_uid = session[:pending_line_uid]
-    auth_params = { provider: :line, uid: line_uid,  }
-    OauthAuthenticator.call(
+    line_auth_hash = { provider: :line, uid: line_uid,  }
+    OauthAuthenticator.call(line_auth_hash)
   end
 end
