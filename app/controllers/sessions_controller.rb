@@ -5,7 +5,7 @@ class SessionsController < ApplicationController
     @user = find_or_create_from_auth_hash(auth_hash)
     login if user
     ScheduleSync.call(user)
-    destroy_line_token
+    session.delete(:pending_line_uid)
     redirect_to root_path
   end
 
@@ -27,11 +27,6 @@ class SessionsController < ApplicationController
 
   def auth_hash
     request.env['omniauth.auth']
-  end
-
-  def destroy_line_token
-    LineToken.find_by(uid: session[:pending_line_uid]).destroy
-    session[:pending_line_uid] = nil
   end
 
   def find_or_create_from_auth_hash(auth_hash)

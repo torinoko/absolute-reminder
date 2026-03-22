@@ -1,8 +1,7 @@
 # frozen_string_literal: true
+require 'line/bot'
 
 module LineBot
-  require 'line/bot'
-
   class WebhookController < ApplicationController
     protect_from_forgery except: :create
 
