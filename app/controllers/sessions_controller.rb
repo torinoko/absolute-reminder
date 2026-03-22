@@ -4,6 +4,7 @@ class SessionsController < ApplicationController
     @user = find_or_create_from_auth_hash(auth_hash)
     login if user
     ScheduleSync.call(user)
+    create_line_profile
     redirect_to root_path
   end
 
@@ -29,5 +30,11 @@ class SessionsController < ApplicationController
 
   def find_or_create_from_auth_hash(auth_hash)
     OauthAuthenticator.call(auth_hash)
+  end
+
+  def create_line_profile
+    line_uid = session[:pending_line_uid]
+    auth_params = { provider: :line, uid: line_uid,  }
+    OauthAuthenticator.call(
   end
 end
