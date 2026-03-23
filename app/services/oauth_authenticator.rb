@@ -28,7 +28,8 @@ class OauthAuthenticator
 
   def find_or_create_user!
     email = auth_hash.dig(:info, :email)
-    user = User.find_by(email: email) if email.present?
+    user = UserProfile.find_by(uid: uid)&.user
+    user.update(email: email) if email && user
     return user if user
 
     User.create!(
