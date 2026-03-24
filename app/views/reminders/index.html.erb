@@ -2,6 +2,16 @@
   <div class="mt-10">
     <% if current_user %>
       <p class="text-2xl">こんにちは、<%= current_user.name %>さん！</p>
+
+        <div class="mt-10">
+          <% if current_user.linked_with?(:discord) %>
+            <p>Discord と連携済みです</p>
+          <% else %>
+            <%= link_to discord_oauth_url, class: "px-4 py-2 rounded-lg bg-red-200 text-amber-800 hover:border-slate-200 hover:bg-red-300 hover:shadow transition duration-150" do %>
+              Discord と連携
+            <% end %>
+          <% end %>
+        </div>
     <% else %>
       <div class="mt-10">
         <p>
@@ -12,7 +22,8 @@
         </p>
         <p>
           みなさんいつもごめんなさい！
-        </p>      </div>
+        </p>
+      </div>
       <div class="mt-10">
         <%= form_tag "/auth/google_oauth2", method: :post, data: {turbo: false} do %>
           <button type="submit" class="px-4 py-2 rounded-lg bg-red-200 text-amber-800 hover:border-slate-200 hover:bg-red-300 hover:shadow transition duration-150">Googleでログイン</button>

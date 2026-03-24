@@ -10,4 +10,8 @@ Rails.application.routes.draw do
     get 'setup', to: 'setup#show'
     post 'webhook', to: 'webhook#create'
   end
+
+  namespace :discord do
+    get "webhook", to: 'webhook#create'
+  end
 end

@@ -6,4 +6,8 @@ class User < ApplicationRecord
 
   validates :name, presence: true, uniqueness: true
   validates :email, presence: true, uniqueness: true
+
+  def linked_with?(provider)
+    user_profiles.any? { |profile| profile.provider == provider.to_s }
+  end
 end
