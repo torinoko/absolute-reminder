@@ -1,0 +1,18 @@
+<div class="flex flex-col mt-10">
+  <h2 class="font-bold text-2xl text-left">Google</h2>
+  <% if current_user&.linked_with?(:google_oauth2) %>
+    <div class="text-left">
+      <p>連携済みです</p>
+    </div>
+  <% else %>
+    <div class="text-left">
+      <p>Google アカウントと連携してね</p>
+
+      <div class="mt-4">
+        <%= form_tag "/auth/google_oauth2", method: :post, data: {turbo: false} do %>
+          <button type="submit" class="px-4 py-2 rounded-lg bg-red-200 text-amber-800 hover:border-slate-200 hover:bg-red-300 hover:shadow transition duration-150">Googleでログイン</button>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>

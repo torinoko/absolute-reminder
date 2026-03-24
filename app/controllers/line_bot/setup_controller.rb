@@ -6,7 +6,7 @@ module LineBot
       line_token = LineToken.find_by(token: params[:token])
 
       if line_token.nil? || line_token.expires_at < Time.current
-        @message = 'URLの有効期限が切れています。もう一度LINEで「連携」と話しかけてください。'
+        redirect_to root_url
       else
         session[:pending_line_uid] = line_token.uid
       end

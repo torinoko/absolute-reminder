@@ -1,34 +1,36 @@
-<section class="text-center mt-10">
-  <div class="mt-10">
+<section class="flex   flex-col items-center text-center mt-10">
+  <div class="mt-10 w-80">
+    <h1 class="text-4xl font-semibold text-amber-900">Habita</h1>
     <% if current_user %>
       <p class="text-2xl">こんにちは、<%= current_user.name %>さん！</p>
 
-        <div class="mt-10">
-          <% if current_user.linked_with?(:discord) %>
-            <p>Discord と連携済みです</p>
-          <% else %>
-            <%= link_to discord_oauth_url, class: "px-4 py-2 rounded-lg bg-red-200 text-amber-800 hover:border-slate-200 hover:bg-red-300 hover:shadow transition duration-150" do %>
-              Discord と連携
-            <% end %>
-          <% end %>
-        </div>
-    <% else %>
+      <!-- Google -->
+      <%= render "shared/google", current_user: %>
+
+      <!-- Discord -->
+      <%= render "shared/discord", current_user: %>
+
+      <!-- LINE -->
+      <%= render "shared/line", current_user: %>
+
+
+  <% else %>
       <div class="mt-10">
         <p>
-          カレンダーに登録した予定をいろんな手段でお知らせします。
+          Google カレンダーに登録した<br>大切な予定をお知らせします。
         </p>
+      </div>
+      <div class="mt-4">
         <p>
           もう予定をすっぽしたくないよ〜！
         </p>
         <p>
-          みなさんいつもごめんなさい！
+          いつもご迷惑おかけしてごめんなさい！
         </p>
       </div>
-      <div class="mt-10">
-        <%= form_tag "/auth/google_oauth2", method: :post, data: {turbo: false} do %>
-          <button type="submit" class="px-4 py-2 rounded-lg bg-red-200 text-amber-800 hover:border-slate-200 hover:bg-red-300 hover:shadow transition duration-150">Googleでログイン</button>
-        <% end %>
-      </div>
+
+      <%= render "shared/line" %>
+      <%= render "shared/google" %>
     <% end %>
   </div>
 </section>

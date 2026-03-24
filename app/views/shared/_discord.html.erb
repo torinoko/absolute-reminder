@@ -1,0 +1,21 @@
+<div class="flex flex-col mt-10">
+  <h2 class="font-bold text-2xl text-left">Discord</h2>
+  <% if current_user&.linked_with?(:discord) %>
+    <div class="text-left">
+      <p>連携済みです</p>
+      <p><%= application_name %>をマイアプリに追加してね</p>
+      <div class="mt-4">
+        <a href="https://discord.com/oauth2/authorize?client_id=<%= ENV['DISCORD_CLIENT_ID'] %>"
+           class="px-4 py-2 rounded-lg bg-red-200 text-amber-800 hover:border-slate-200 hover:bg-red-300 hover:shadow transition duration-150" %>
+          マイアプリに追加
+        </a>
+      </div>
+    </div>
+  <% else %>
+    <div class="text-left mt-4">
+      <%= link_to discord_oauth_url, class: "px-4 py-2 rounded-lg bg-red-200 text-amber-800 hover:border-slate-200 hover:bg-red-300 hover:shadow transition duration-150" do %>
+        Discord と連携
+      <% end %>
+    </div>
+  <% end %>
+</div>
