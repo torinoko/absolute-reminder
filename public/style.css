@@ -1,1 +1,9 @@
-.main-color { background-color: #fff8f5; color: #7b4b4b }
+.main-color {
+    background-color: #fff8f5;
+    color: #7b4b4b
+}
+.content-area {
+    width: 380px;
+    min-width: 40%;
+    max-width: 70%;
+}
