@@ -14,9 +14,8 @@ class Schedule < ApplicationRecord
   private
 
   def schedule_notification_job
-    reminders = schedule_reminders.order(minutes: :asc)
-    recent_reminder = reminders.last
-    last_minute_reminder = reminders.first
+    recent_reminder = schedule_reminders.last
+    last_minute_reminder = schedule_reminders.first
     recent_time = self.start_at - recent_reminder.minutes
     last_minute_time = self.start_at - last_minute_reminder.minutes
 
@@ -27,4 +26,5 @@ class Schedule < ApplicationRecord
       NotifySchedulesJob.set(wait_until: recent_time).perform_later(schedule_id: self.id)
     end
   end
+
 end

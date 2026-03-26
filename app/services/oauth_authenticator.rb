@@ -29,11 +29,11 @@ class OauthAuthenticator
   def find_or_create_user!
     email = auth_hash.dig(:info, :email)
     user = UserProfile.find_by(uid: uid)&.user
-    user.update(email: email) if email && user
+    user.update!(email: email) if email && user
     return user if user
 
     User.create!(
-      email: email || "dummy+#{uid}example.com",
+      email: email || "dummy+#{uid}@example.com",
       name: auth_hash.dig(:info, :name) || '名無しさん'
     )
   end

@@ -5,7 +5,6 @@ class SessionsController < ApplicationController
     @user = find_or_create_from_auth_hash(auth_hash)
     login if user
     ScheduleSync.call(user)
-    session.delete(:pending_line_uid)
     redirect_to root_path
   end
 

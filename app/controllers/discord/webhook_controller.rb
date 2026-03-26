@@ -2,6 +2,9 @@
 
 module Discord
   class WebhookController < ApplicationController
+    protect_from_forgery except: :create
+    before_action :require_login
+
     def create
       code = params[:code]
       render status: :no_content if code.blank?
@@ -23,11 +26,12 @@ module Discord
         "code" => code,
         "redirect_uri" => ENV["DISCORD_REDIRECT_URI"]
       })
+      render status: :no_content if code.blank?
 
       if res.code == "200"
         JSON.parse(res.body)
       else
-        Rails.logger.error "Discord access_token eroor"
+        Rails.logger.error "Discord access_token error"
       end
     end
 

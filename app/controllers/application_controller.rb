@@ -15,4 +15,8 @@ class ApplicationController < ActionController::Base
   def user_signed_in?
     current_user.present?
   end
+
+  def require_login
+    raise ActionController::Forbidden if current_user.blank?
+  end
 end

@@ -10,4 +10,8 @@ class User < ApplicationRecord
   def linked_with?(provider)
     user_profiles.any? { |profile| profile.provider == provider.to_s }
   end
+
+  def profile_for(provider_name)
+    user_profiles.find { |profile| profile.provider == provider_name.to_s }
+  end
 end

@@ -14,8 +14,7 @@ module Google
 
     def setup_authorization
       # アクセストークンが期限切れの場合は、リフレッシュトークンを使って再取得
-      # 取得した新しいアクセストークンをDBに保存し直す処理をここに記述
-      if profile.token_expires_at.present? && user.token_expires_at < Time.current
+      if profile.token_expires_at.present? && profile.token_expires_at < Time.current
         client.fetch_access_token!
         user.update!(
           access_token: client.access_token,

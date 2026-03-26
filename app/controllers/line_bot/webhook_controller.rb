@@ -23,14 +23,14 @@ module LineBot
       end
 
       @token = SecureRandom.urlsafe_base64
-      create_user_profile(events)
+      follow_event(events)
 
       head :ok
     end
 
     private
 
-    def create_user_profile(events)
+    def follow_event(events)
       events.each do |event|
         case event
         when Line::Bot::V2::Webhook::FollowEvent
@@ -42,16 +42,17 @@ module LineBot
     end
 
     def send_message(event)
-      link_url = "#{root_url}line_bot/setup?token=#{token}&openExternalBrowser=1"
-
-      message = Line::Bot::V2::MessagingApi::TextMessage.new(
-        text: "#{application_name}へようこそ！🐦\n予定を通知するために、以下のリンクからGoogleカレンダーと連携してください。\n#{link_url}"
-      )
+      message = Line::Bot::V2::MessagingApi::TextMessage.new(text:)
       request_body = Line::Bot::V2::MessagingApi::ReplyMessageRequest.new(
         reply_token: event.reply_token,
         messages: [message]
       )
       client.reply_message(reply_message_request: request_body)
+    end
+
+    def text
+      link_url = "#{root_url}line_bot/setup?token=#{token}&openExternalBrowser=1"
+      "#{application_name}へようこそ！🐦\n予定を通知するために、以下のリンクからGoogleカレンダーと連携してください。\n#{link_url}"
     end
 
     def client

@@ -10,12 +10,15 @@ class ScheduleSync
         ActiveRecord::Base.transaction do
           schedule.update!(
             start_at: event.start.date_time.change(sec: 0, usec: 0),
-            summary: event.summary
+            summary: event.summary,
+            schedule_reminders: schedule_reminders(event:, schedule:)
           )
-          schedule.update!(schedule_reminders: schedule_reminders(event:, schedule:))
         end
+        settings_schedule_notification(schedule)
       end
     end
+
+    private
 
     def schedule_reminders(event:, schedule:)
       reminders = []
@@ -60,6 +63,20 @@ class ScheduleSync
       if job_ids.present?
         SolidQueue::Job.where(active_job_id: job_ids).destroy_all
         schedule.schedule_reminders.update_all(job_id: nil)
+      end
+    end
+
+    def settings_schedule_notification(schedule)
+      recent_reminder = schedule.schedule_reminders.last
+      last_minute_reminder = schedule.schedule_reminders.first
+      recent_time = self.start_at - recent_reminder.minutes
+      last_minute_time = self.start_at - last_minute_reminder.minutes
+
+      if recent_time> Time.current && !recent_reminder.notified?
+        NotifySchedulesJob.set(wait_until: recent_time).perform_later(schedule_reminder_id: recent_reminder.id)
+      end
+      if last_minute_time> Time.current && !last_minute_reminder.notified?
+        NotifySchedulesJob.set(wait_until: last_minute_time).perform_later(schedule_reminder_id: last_minute_reminder.id)
       end
     end
   end
