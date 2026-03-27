@@ -28,7 +28,7 @@ module Google
     private
 
     def profile
-      @profile ||= user.user_profiles.find_by(provider: 'google_oauth2')
+      @profile ||= user.user_profiles.detect { |p| p.provider == 'google_oauth2' }
     end
 
     def client

@@ -4,7 +4,7 @@ class ScheduleSyncJob < ApplicationJob
   queue_as :default
 
   def perform
-    User.find_each do |user|
+    User.eager_load(:user_profiles).find_each do |user|
       ScheduleSync.call(user)
     end
   end
