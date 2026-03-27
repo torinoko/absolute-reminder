@@ -26,7 +26,7 @@ module Google
       )
 
       events.items.select do |event|
-        event.start.date_time.present? && event.summary.include?(TARGET_KEYWORD)
+        event.start.date_time.present? && event.start.date_time > Time.current && event.summary.include?(TARGET_KEYWORD)
       end
     end
 
