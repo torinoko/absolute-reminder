@@ -36,7 +36,9 @@ class SessionsController < ApplicationController
     if uid
       google_uid = user.user_profiles.find_by(provider: :google_oauth2)&.uid
       access_token = session[:pending_line_token]
-      OauthAuthenticator.call({ provider: :line, uid:, google_uid:, access_token:})
+      line_auth_hash = { provider: :line, uid:, google_uid:, credentials: { access_token: }}
+      OauthAuthenticator.call(line_auth_hash)
+      LineToken.find_by(uid:)&.destroy
     end
     user
   end

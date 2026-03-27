@@ -2,10 +2,21 @@
 require 'line/bot'
 
 module LineBot
-  class WebhookController < ApplicationController
-    protect_from_forgery except: :create
+  class OauthController < ApplicationController
+    protect_from_forgery
 
     attr_reader :token
+
+    def show
+      line_token = LineToken.find_by(token: params[:token])
+
+      if line_token.nil? || line_token.expires_at < Time.current
+        redirect_to root_url
+      else
+        session[:pending_line_uid] = line_token.uid
+        session[:pending_line_token] = line_token.token
+      end
+    end
 
     def create
       body = request.body.read
@@ -51,7 +62,7 @@ module LineBot
     end
 
     def text
-      link_url = "#{root_url}line_bot/setup?token=#{token}&openExternalBrowser=1"
+      link_url = "#{root_url}line_bot/oauth?token=#{token}&openExternalBrowser=1"
       "#{application_name}へようこそ！🐦\n予定を通知するために、以下のリンクからGoogleカレンダーと連携してください。\n#{link_url}"
     end
 

@@ -7,8 +7,8 @@ Rails.application.routes.draw do
   get 'logout', to: 'sessions#destroy'
 
   namespace :line_bot do
-    get 'setup', to: 'setup#show'
-    post 'webhook', to: 'webhook#create'
+    get 'oauth', to: 'oauth#show'
+    post 'webhook', to: 'oauth#create'
   end
 
   namespace :discord do
