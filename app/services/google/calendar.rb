@@ -26,12 +26,16 @@ module Google
       )
 
       events.items.select do |event|
-        event.start.date_time.present? && event.start.date_time > Time.current && event.summary.include?(TARGET_KEYWORD)
+        event.start.date_time.present? && later_than_now?(event:) && include_keyword?(event:)
       end
     end
 
-    def include_keyword?(event)
-      event.summary
+    def later_than_now?(event:)
+      event.start.date_time > Time.current
+    end
+
+    def include_keyword?(event:)
+      event.summary.include?(TARGET_KEYWORD)
     end
   end
 end
