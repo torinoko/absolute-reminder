@@ -24,5 +24,5 @@ Rails.application.configure do
   config.content_security_policy_nonce_auto = true
 
   # Report violations without enforcing the policy.
-  config.content_security_policy_report_only = true
+  config.content_security_policy_report_only = false
 end
