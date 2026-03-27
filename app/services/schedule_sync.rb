@@ -7,14 +7,16 @@ class ScheduleSync
 
       events.each do |event|
         schedule = user.schedules.find_or_initialize_by(google_event_id: event.id)
-        ActiveRecord::Base.transaction do
-          schedule.update!(
-            start_at: event.start.date_time.change(sec: 0, usec: 0),
-            summary: event.summary,
-            schedule_reminders: schedule_reminders(event:, schedule:)
-          )
+        schedule.start_at = event.start.date_time.change(sec: 0, usec: 0)
+
+        if change_start_at?(event:, schedule:)
+          schedule.summary = event.summary
+          schedule.schedule_reminders = schedule_reminders(event:, schedule:)
+          ActiveRecord::Base.transaction do
+            schedule.save!
+            settings_schedule_notification(schedule:)
+          end
         end
-        settings_schedule_notification(schedule:)
       end
     end
 
@@ -31,8 +33,6 @@ class ScheduleSync
       end
       reminders
     end
-
-    private
 
     def reminder_settings?(event:)
       event.reminders && event.reminders.overrides.present?
