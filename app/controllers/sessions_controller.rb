@@ -32,8 +32,9 @@ class SessionsController < ApplicationController
     user = OauthAuthenticator.call(auth_hash)
     uid = session[:pending_line_uid]
     if uid
+      google_uid = user.user_profiles.find_by(provider: :google_oauth2)&.uid
       access_token = session[:pending_line_token]
-      OauthAuthenticator.call({ provider: :line, uid:, access_token:})
+      OauthAuthenticator.call({ provider: :line, uid:, google_uid:, access_token:})
     end
     user
   end
