@@ -9,6 +9,7 @@ module LineBot
         redirect_to root_url
       else
         session[:pending_line_uid] = line_token.uid
+        session[:pending_line_token] = line_token.token
       end
     end
   end

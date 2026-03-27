@@ -2,6 +2,8 @@
 
 module Google
   class Calendar
+    TARGET_KEYWORD = '！'
+
     attr_reader :service
 
     def self.call(user)
@@ -16,6 +18,7 @@ module Google
     def fetch_events
       events = service.list_events(
         'primary',
+        q: TARGET_KEYWORD,
         time_min: Time.current.iso8601,
         time_max: 6.hour.since.iso8601,
         single_events: true,
@@ -23,9 +26,12 @@ module Google
       )
 
       events.items.select do |event|
-        start_time = event.start.date_time
-        start_time.present? && start_time > Time.current
+        event.start.date_time.present? && event.summary.include?(TARGET_KEYWORD)
       end
+    end
+
+    def include_keyword?(event)
+      event.summary
     end
   end
 end

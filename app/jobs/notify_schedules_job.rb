@@ -3,8 +3,8 @@
 class NotifySchedulesJob < ApplicationJob
   queue_as :default
 
-  def perform(schedule_id:)
-    schedule = Schedule.find(schedule_id)
+  def perform(schedule_reminder_id:)
+    schedule = ScheduleReminder.find(schedule_reminder_id).schedule
     process_notification(schedule)
   end
 

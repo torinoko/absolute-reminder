@@ -32,7 +32,8 @@ class SessionsController < ApplicationController
     user = OauthAuthenticator.call(auth_hash)
     uid = session[:pending_line_uid]
     if uid
-      user.user_profiles.create(provider: :line, uid: uid)
+      access_token = session[:pending_line_token]
+      OauthAuthenticator.call({ provider: :line, uid:, access_token:})
     end
     user
   end

@@ -8,26 +8,29 @@ class ScheduleSync
       events.each do |event|
         schedule = user.schedules.find_or_initialize_by(google_event_id: event.id)
         ActiveRecord::Base.transaction do
-          schedule.update!(
-            start_at: event.start.date_time.change(sec: 0, usec: 0),
-            summary: event.summary,
-            schedule_reminders: schedule_reminders(event:, schedule:)
-          )
+          schedule.start_at = event.start.date_time.change(sec: 0, usec: 0)
+          schedule.summary = event.summary
+          schedule.schedule_reminders = initialize_schedule_reminders(event:, schedule:)
+          schedule.save!
         end
-        settings_schedule_notification(schedule)
+        settings_schedule_notification(schedule:)
       end
     end
 
     private
 
-    def schedule_reminders(event:, schedule:)
+    def initialize_schedule_reminders(event:, schedule:)
+      schedule.schedule_reminders.destroy_all if change_start_at?(event:, schedule:)
+
       reminders = []
-      if reminder_settings?(event)
+      if reminder_settings?(event:)
         event.reminders.overrides.each do |override|
           method = override.reminder_method
           minutes = override.minutes
-          reminders << schedule.schedule_reminders.find_or_create_by(method:, minutes:)
+          reminders << schedule.schedule_reminders.find_or_initialize_by(method:, minutes:)
         end
+      else
+        schedule.schedule_reminders.destroy_all
       end
       reminders
     end
@@ -64,13 +67,19 @@ class ScheduleSync
         SolidQueue::Job.where(active_job_id: job_ids).destroy_all
         schedule.schedule_reminders.update_all(job_id: nil)
       end
+   end
+
+    def change_start_at?(event:, schedule:)
+      event.start.date_time.change(sec: 0, usec: 0) != schedule.start_at_was
     end
 
-    def settings_schedule_notification(schedule)
+    def settings_schedule_notification(schedule:)
+      return if schedule.schedule_reminders&.blank?
+
       recent_reminder = schedule.schedule_reminders.last
       last_minute_reminder = schedule.schedule_reminders.first
-      recent_time = self.start_at - recent_reminder.minutes
-      last_minute_time = self.start_at - last_minute_reminder.minutes
+      recent_time = schedule.start_at - recent_reminder.minutes
+      last_minute_time = schedule.start_at - last_minute_reminder.minutes
 
       if recent_time> Time.current && !recent_reminder.notified?
         NotifySchedulesJob.set(wait_until: recent_time).perform_later(schedule_reminder_id: recent_reminder.id)
