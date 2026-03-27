@@ -13,8 +13,8 @@
     <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
     <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
 
-    <link rel="icon" href="images/Habita_red.png" type="image/png">
-    <link rel="apple-touch-icon" href="images/Habita.png">
+    <link rel="icon" href="/images/Habita_red.png" type="image/png">
+    <link rel="apple-touch-icon" href="/images/Habita.png">
     <link href="https://fonts.googleapis.com/css2?family=Sawarabi+Gothic&display=swap" rel="stylesheet">
 
     <%# Includes all stylesheet files in app/assets/stylesheets %>
@@ -27,7 +27,7 @@
       <header class="fixed top-0 left-0 right-0 bg-red-50/80 backdrop-blur-sm shadow-sm z-50">
         <div class="max-w-4xl mx-auto flex items-center justify-between px-4 py-3">
           <a href="/" class="flex items-center space-x-2">
-            <img src="images/Habita_red.png" alt="logo" width="30">
+            <img src="/images/Habita_red.png" alt="logo" width="30">
             <span class="text-xl font-semibold text-amber-900"><%= application_name %></span>
           </a>
           <% if current_user %>
