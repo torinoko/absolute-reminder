@@ -9,12 +9,12 @@ class ScheduleSync
         schedule = user.schedules.find_or_initialize_by(google_event_id: event.id)
         schedule.start_at = event.start.date_time.change(sec: 0, usec: 0)
 
-        if change_start_at?(event:, schedule:)
+        if changed_start_at?(event:, schedule:)
           schedule.summary = event.summary
-          schedule.schedule_reminders = schedule_reminders(event:, schedule:)
+          schedule.schedule_reminders = initialize_schedule_reminders(event:, schedule:)
           ActiveRecord::Base.transaction do
             schedule.save!
-            settings_schedule_notification(schedule:)
+            setting_notification(schedule:)
           end
         end
       end
@@ -22,9 +22,9 @@ class ScheduleSync
 
     private
 
-    def schedule_reminders(event:, schedule:)
+    def initialize_schedule_reminders(event:, schedule:)
       reminders = []
-      if reminder_settings?(event:)
+      if setting_reminder?(event:)
         event.reminders.overrides.each do |override|
           method = override.reminder_method
           minutes = override.minutes
@@ -34,30 +34,22 @@ class ScheduleSync
       reminders
     end
 
-    def reminder_settings?(event:)
+    def setting_reminder?(event:)
       event.reminders && event.reminders.overrides.present?
     end
 
-    def change_start_at?(event:, schedule:)
+    def changed_start_at?(event:, schedule:)
       event.start.date_time.change(sec: 0, usec: 0) != schedule.start_at_was
     end
 
-    def settings_schedule_notification(schedule:)
+    def setting_notification(schedule:)
       cleaning_job(schedule:)
       return if schedule.schedule_reminders&.blank?
 
-      recent_reminder = schedule.schedule_reminders.order(minutes: :asc).last
-      last_minute_reminder = schedule.schedule_reminders.order(minutes: :asc).first
-      recent_time = schedule.start_at - recent_reminder.minutes
-      last_minute_time = schedule.start_at - last_minute_reminder.minutes
-
-      if recent_time > Time.current
-        job = NotifySchedulesJob.set(wait_until: recent_time).perform_later(schedule_reminder_id: recent_reminder.id)
-        recent_reminder.update!(job_id: job.job_id)
-      end
-      if last_minute_time > Time.current && recent_reminder.id != last_minute_reminder.id
-        job = NotifySchedulesJob.set(wait_until: last_minute_time).perform_later(schedule_reminder_id: last_minute_reminder.id)
-        last_minute_reminder.update!(job_id: job.job_id)
+      schedule.schedule_reminders.each do |reminder|
+        wait_until = schedule.start_at - reminder.minutes.minutes
+        job = NotifySchedulesJob.set(wait_until:).perform_later(schedule_reminder_id: reminder.id)
+        reminder.update!(job_id: job.job_id)
       end
     end
 
