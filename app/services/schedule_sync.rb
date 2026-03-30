@@ -20,8 +20,8 @@ class ScheduleSync
       schedule.start_at = event.start.date_time.change(sec: 0, usec: 0)
       schedule.summary = event.summary
       schedule.schedule_reminders = initialize_schedule_reminders
-      schedule.save!
-      setting_notification
+      schedule.save! if schedule.changed?
+      setting_notification if schedule.saved_changes?
     end
   end
 
@@ -49,7 +49,8 @@ class ScheduleSync
   end
 
   def changed_reminder?
-    event.reminders.overrides.pluck(:minutes).sort != schedule.schedule_reminders.pluck(:minutes).sort
+    return false unless event.reminders&.overrides
+    event.reminders.overrides.map(&:minutes).sort != schedule.schedule_reminders.map(&:minutes).sort
   end
 
   def setting_notification
@@ -58,8 +59,10 @@ class ScheduleSync
 
     schedule.schedule_reminders.each do |reminder|
       wait_until = schedule.start_at - reminder.minutes.minutes
-      job = NotifySchedulesJob.set(wait_until:).perform_later(schedule_reminder_id: reminder.id)
-      reminder.update!(job_id: job.job_id)
+      if wait_until > Time.current
+        job = NotifySchedulesJob.set(wait_until:).perform_later(schedule_reminder_id: reminder.id)
+        reminder.update!(job_id: job.job_id)
+      end
     end
   end
 

@@ -18,8 +18,9 @@ module Google
     def fetch_events
       events = service.list_events(
         'primary',
+        q: TARGET_KEYWORD,
         time_min: Time.current.iso8601,
-        time_max: 48.hour.since.iso8601,
+        time_max: 24.hour.since.iso8601,
         single_events: true,
         order_by: 'startTime'
       )

@@ -30,8 +30,6 @@ module Discord
     private
 
     def exchange_code_for_token(code)
-      return if code.blank?
-
       uri = URI("https://discord.com/api/oauth2/token")
       res = Net::HTTP.post_form(uri, {
         "client_id" => ENV["DISCORD_CLIENT_ID"],

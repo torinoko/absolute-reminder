@@ -28,7 +28,7 @@ class OauthAuthenticator
 
   def find_or_create_user!
     email = auth_hash.dig(:info, :email)
-    google_uid = auth_hash[:google_uid]|| uid
+    google_uid = auth_hash[:google_uid] || uid
     user = UserProfile.find_by(provider: 'google_oauth2', uid: google_uid)&.user
     if user
       user.update!(email: email) if email
