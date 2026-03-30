@@ -1,51 +1,33 @@
 # frozen_string_literal: true
 
 module Discord
-  class OauthController < ApplicationController
-    protect_from_forgery except: :create
+  class WebhookController < ApplicationController
     before_action :require_login
-
-    def new
-      session[:discord_oauth_state] = SecureRandom.hex(16)
-      redirect_to discord_oauth_url(state: session[:discord_oauth_state]), allow_other_host: true
-    end
 
     def create
       code = params['code']
       unless code
         @message = '連携に失敗しました。'
-        render '/error', status: :bad_request
-        return
+        return render '/error', status: :bad_request
       end
 
       if params['state'] != session[:discord_oauth_state]
         @message = '不正なアクセスです。'
-        render '/error', status: :bad_request
-        return
+        return render '/error', status: :bad_request
       end
       session.delete(:discord_oauth_state)
 
       token_response = exchange_code_for_token(code)
+      unless token_response
+        @message = '連携に失敗しました。'
+        return render '/error', status: :bad_request
+      end
       access_token = token_response['access_token']
       create_user_profile(access_token)
       redirect_to root_path
     end
 
     private
-
-    def discord_oauth_url(state:)
-      client_id     = ENV['DISCORD_CLIENT_ID']
-      redirect_uri  = CGI.escape(ENV['DISCORD_REDIRECT_URI'])
-      scope         = 'identify'
-      response_type = 'code'
-
-      "https://discord.com/api/oauth2/authorize" \
-        "?client_id=#{client_id}" \
-        "&redirect_uri=#{redirect_uri}" \
-        "&response_type=#{response_type}" \
-        "&scope=#{scope}" \
-        "&state=#{state}"
-    end
 
     def exchange_code_for_token(code)
       return if code.blank?
