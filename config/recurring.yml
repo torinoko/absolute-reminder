@@ -1,20 +1,21 @@
-# examples:
-#   periodic_cleanup:
-#     class: CleanSoftDeletedRecordsJob
-#     queue: background
-#     args: [ 1000, { batch_size: 500 } ]
-#     schedule: every hour
-#   periodic_cleanup_with_command:
-#     command: "SoftDeletedRecord.due.delete_all"
-#     priority: 2
-#     schedule: at 5am every day
-
 development:
   sync_schedules_hourly:
     class: ScheduleSyncJob
     schedule: "15,45 * * * *"
+  clear_finished_jobs:
+    command: "SolidQueue::Job.clear_finished_in_batches"
+    schedule: "every hour at minute 12"
+  cleanup_old_schedules:
+    command: "Schedule.where('start_at < ?', 1.month.ago).delete_all"
+    schedule: "every day at 4am"
 
 production:
   sync_schedules_hourly:
     class: ScheduleSyncJob
     schedule: "15,45 * * * *"
+  clear_finished_jobs:
+    command: "SolidQueue::Job.clear_finished_in_batches"
+    schedule: "every hour at minute 12"
+  cleanup_old_schedules:
+      command: "Schedule.where('start_at < ?', 1.month.ago).delete_all"
+      schedule: "every day at 4am"
