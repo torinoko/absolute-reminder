@@ -14,4 +14,11 @@ class User < ApplicationRecord
   def profile_for(provider_name)
     user_profiles.find { |profile| profile.provider == provider_name.to_s }
   end
+
+  def notification_targets
+    {
+      line:    profile_for('line')&.uid,
+      discord: profile_for('discord')&.uid
+    }.compact
+  end
 end

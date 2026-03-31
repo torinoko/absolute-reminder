@@ -25,14 +25,11 @@ class NotifySchedulesJob < ApplicationJob
     user = schedule.user
 
     begin
-      uid = user.profile_for(:line)&.uid
-      if uid
-        Line::SendMessageService.call(uid:, text:)
-      end
-
-      uid = user.profile_for(:discord)&.uid
-      if uid
-        Discord::SendMessageService.call(uid:, text:)
+      user.notification_targets.each do |platform, uid|
+        case platform
+        when :line    then Line::SendMessageService.call(uid:, text:)
+        when :discord then Discord::SendMessageService.call(uid:, text:)
+        end
       end
     rescue StandardError => e
       Rails.logger.error "Notification send message error (Schedule ID: #{schedule.id}): #{e.class} - #{e.message}"

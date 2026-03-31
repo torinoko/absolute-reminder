@@ -5,11 +5,11 @@
 class OauthAuthenticator
   attr_reader :auth_hash, :user, :uid
 
-  def self.call(auth_hash)
-    new(auth_hash).authenticate
+  def self.call(auth_hash, pending_line_uid: nil, pending_line_token: nil)
+    new(auth_hash, pending_line_uid:, pending_line_token:).authenticate
   end
 
-  def initialize(auth_hash, pending_line_uid: nil, pending_line_token: nil)
+  def initialize(auth_hash, pending_line_uid:, pending_line_token:)
     @auth_hash          = auth_hash
     @provider           = auth_hash[:provider]
     @uid                = auth_hash[:uid]
