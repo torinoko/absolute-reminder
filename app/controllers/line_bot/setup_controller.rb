@@ -5,7 +5,7 @@ module LineBot
     def show
       line_token = LineToken.find_by(token: params[:token])
 
-      if line_token.nil? || line_token.expires_at < Time.current
+      if line_token.nil? || line_token.expired?
         redirect_to root_url
       else
         session[:pending_line_uid] = line_token.uid

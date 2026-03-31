@@ -36,13 +36,14 @@ module Discord
         "client_secret" => ENV["DISCORD_CLIENT_SECRET"],
         "grant_type" => "authorization_code",
         "code" => code,
-        "redirect_uri" => ENV["DISCORD_REDIRECT_URI"]
+        "redirect_uri" => discord_callback_url
       })
 
       if res.code == "200"
         JSON.parse(res.body)
       else
         Rails.logger.error "Discord access_token error"
+        return false
       end
     end
 

@@ -1,22 +1,25 @@
 # frozen_string_literal: true
 
 class OauthAuthenticator
-  attr_reader :auth_hash, :uid, :provider
+  attr_reader :auth_hash, :user, :uid
 
   def self.call(auth_hash)
     new(auth_hash).authenticate
   end
 
-  def initialize(auth_hash)
-    @auth_hash = auth_hash
-    @provider = auth_hash[:provider]
-    @uid = auth_hash[:uid]
+  def initialize(auth_hash, pending_line_uid: nil, pending_line_token: nil)
+    @auth_hash          = auth_hash
+    @provider           = auth_hash[:provider]
+    @uid                = auth_hash[:uid]
+    @pending_line_uid   = pending_line_uid
+    @pending_line_token = pending_line_token
   end
 
   def authenticate
     ActiveRecord::Base.transaction do
-      user = find_or_create_user!
-      update_or_create_authentication!(user)
+      @user = find_or_create_user!
+      update_or_create_user_profile!(auth_hash:)
+      update_or_create_user_profile!(auth_hash: line_auth_hash) if @pending_line_uid.present?
       user
     end
   rescue ActiveRecord::RecordInvalid => e
@@ -28,8 +31,7 @@ class OauthAuthenticator
 
   def find_or_create_user!
     email = auth_hash.dig(:info, :email)
-    google_uid = auth_hash[:google_uid] || uid
-    user = UserProfile.find_by(provider: 'google_oauth2', uid: google_uid)&.user
+    user = UserProfile.find_by(provider: :google_oauth2, uid:)&.user
     if user
       user.update!(email: email) if email
       return user
@@ -41,14 +43,21 @@ class OauthAuthenticator
     end
   end
 
-  def update_or_create_authentication!(user)
-    profile = UserProfile.find_or_initialize_by(provider:, uid:)
+  def line_auth_hash
+    uid = @pending_line_uid
+    token = @pending_line_token
+    google_uid = user.user_profiles.find_by(provider: :google_oauth2)&.uid
+    { provider: :line, uid:, google_uid:, credentials: { token: }}
+  end
 
+  def update_or_create_user_profile!(auth_hash:)
+    provider = auth_hash[:provider]
+    uid      = auth_hash[:uid]
+    profile  = user.user_profiles.find_or_initialize_by(provider:, uid:)
     raw_info = auth_hash.dig(:extra, :raw_info).to_h
     new_refresh_token = auth_hash.dig(:credentials, :refresh_token)
 
     profile.update!(
-      user: user,
       access_token: auth_hash.dig(:credentials, :token),
       refresh_token: new_refresh_token || profile.refresh_token,
       raw_info: raw_info

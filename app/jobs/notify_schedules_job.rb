@@ -34,8 +34,6 @@ class NotifySchedulesJob < ApplicationJob
       if uid
         Discord::SendMessageService.call(uid:, text:)
       end
-
-      schedule.update!(notified: true)
     rescue StandardError => e
       Rails.logger.error "Notification send message error (Schedule ID: #{schedule.id}): #{e.class} - #{e.message}"
     end

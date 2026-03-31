@@ -16,7 +16,7 @@ module Google
       # アクセストークンが期限切れの場合は、リフレッシュトークンを使って再取得
       if profile.token_expires_at.present? && profile.token_expires_at < Time.current
         client.fetch_access_token!
-        user.update!(
+        profile.update!(
           access_token: client.access_token,
           token_expires_at: Time.current + client.expires_in.to_i.seconds
         )

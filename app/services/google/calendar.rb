@@ -30,6 +30,8 @@ module Google
       end
     end
 
+    private
+
     def later_than_now?(event:)
       event.start.date_time > Time.current
     end

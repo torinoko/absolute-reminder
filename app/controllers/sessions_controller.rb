@@ -31,15 +31,8 @@ class SessionsController < ApplicationController
   end
 
   def find_or_create_from_auth_hash(auth_hash)
-    user = OauthAuthenticator.call(auth_hash)
-    uid = session[:pending_line_uid]
-    if uid
-      google_uid = user.user_profiles.find_by(provider: :google_oauth2)&.uid
-      token = session[:pending_line_token]
-      line_auth_hash = { provider: :line, uid:, google_uid:, credentials: { token: }}
-      OauthAuthenticator.call(line_auth_hash)
-      LineToken.find_by(uid:)&.destroy
-    end
-    user
+    pending_uid   = session[:pending_line_uid]
+    pending_token = session[:pending_line_token]
+    OauthAuthenticator.call(auth_hash, pending_line_uid: pending_uid, pending_line_token: pending_token)
   end
 end
