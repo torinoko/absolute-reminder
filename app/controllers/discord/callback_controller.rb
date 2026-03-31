@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Discord
-  class WebhookController < ApplicationController
+  class CallbackController < ApplicationController
     before_action :require_login
 
     def create

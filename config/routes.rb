@@ -13,6 +13,6 @@ Rails.application.routes.draw do
 
   namespace :discord do
     get 'setup', to: 'setup#show'
-    get "webhook", to: 'webhook#create'
+    get "callback", to: 'callback#create'
   end
 end

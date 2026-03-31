@@ -4,16 +4,21 @@ class ScheduleSync
   attr_reader :user, :event, :schedule
 
   def self.call(user)
-    new(user).schedules_from_google_calendar
+    new(user).call
   end
 
   def initialize(user)
     @user = user
   end
 
-  def schedules_from_google_calendar
+  def call
     events = Google::Calendar.call(user)
+    events.each {|event| sync(event:) }
+  end
 
+  private
+
+  def sync(event:)
     events.each do |event|
       @event = event
       @schedule = user.schedules.find_or_initialize_by(google_event_id: event.id)
@@ -27,8 +32,6 @@ class ScheduleSync
       end
     end
   end
-
-  private
 
   def initialize_schedule_reminders
     reminders = []
