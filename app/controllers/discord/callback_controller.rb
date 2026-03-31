@@ -32,8 +32,8 @@ module Discord
     def exchange_code_for_token(code)
       uri = URI("https://discord.com/api/oauth2/token")
       res = Net::HTTP.post_form(uri, {
-        "client_id" => ENV["DISCORD_CLIENT_ID"],
-        "client_secret" => ENV["DISCORD_CLIENT_SECRET"],
+        "client_id" => ENV.fetch("DISCORD_CLIENT_ID", nil),
+        "client_secret" => ENV.fetch("DISCORD_CLIENT_SECRET", nil),
         "grant_type" => "authorization_code",
         "code" => code,
         "redirect_uri" => discord_callback_url

@@ -30,7 +30,7 @@ module Line
 
     def client
       @client ||= Line::Bot::V2::MessagingApi::ApiClient.new(
-        channel_access_token: ENV['LINE_CHANNEL_TOKEN']
+        channel_access_token: ENV.fetch('LINE_CHANNEL_TOKEN', nil)
       )
     end
   end

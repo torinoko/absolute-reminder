@@ -16,8 +16,8 @@ class NotifySchedulesJob < ApplicationJob
   def time(schedule_reminder:)
     hours = schedule_reminder.minutes / 60
     minutes = schedule_reminder.minutes % 60
-    hours_text = "#{hours}時間" if hours > 0
-    minutes_text = "#{minutes}分" if minutes > 0
+    hours_text = "#{hours}時間" if hours.positive?
+    minutes_text = "#{minutes}分" if minutes.positive?
     "#{hours_text}#{minutes_text}"
   end
 

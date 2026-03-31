@@ -44,7 +44,7 @@ module Discord
     def post_request(path, payload)
       uri = URI.parse("#{BASE_URL}#{path}")
       req = Net::HTTP::Post.new(uri)
-      req['Authorization'] = "Bot #{ENV['DISCORD_BOT_TOKEN']}"
+      req['Authorization'] = "Bot #{ENV.fetch('DISCORD_BOT_TOKEN', nil)}"
       req['Content-Type'] = 'application/json'
       req.body = payload.to_json
 

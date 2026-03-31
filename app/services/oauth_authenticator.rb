@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# OauthAuthenticator:
+# - 認証情報を DB に保存する
 class OauthAuthenticator
   attr_reader :auth_hash, :user, :uid
 
@@ -47,7 +49,7 @@ class OauthAuthenticator
     uid = @pending_line_uid
     token = @pending_line_token
     google_uid = user.user_profiles.find_by(provider: :google_oauth2)&.uid
-    { provider: :line, uid:, google_uid:, credentials: { token: }}
+    { provider: :line, uid:, google_uid:, credentials: { token: } }
   end
 
   def update_or_create_user_profile!(auth_hash:)

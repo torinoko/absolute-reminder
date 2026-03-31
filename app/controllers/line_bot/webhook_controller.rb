@@ -12,7 +12,7 @@ module LineBot
       signature = request.env['HTTP_X_LINE_SIGNATURE']
 
       parser = Line::Bot::V2::WebhookParser.new(
-        channel_secret: ENV['LINE_CHANNEL_SECRET']
+        channel_secret: ENV.fetch('LINE_CHANNEL_SECRET', nil)
       )
 
       begin
@@ -57,7 +57,7 @@ module LineBot
 
     def client
       @client ||= Line::Bot::V2::MessagingApi::ApiClient.new(
-        channel_access_token: ENV['LINE_CHANNEL_TOKEN']
+        channel_access_token: ENV.fetch('LINE_CHANNEL_TOKEN', nil)
       )
     end
   end

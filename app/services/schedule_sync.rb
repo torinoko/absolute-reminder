@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+# ScheduleSync:
+# - Google カレンダーから予定データを取得
+# - 取得したデータを DB に保存する
 class ScheduleSync
   attr_reader :user, :event, :schedule
 
@@ -13,7 +16,7 @@ class ScheduleSync
 
   def call
     events = Google::Calendar.call(user)
-    events.each {|event| sync(event:) }
+    events.each { |event| sync(event:) }
   end
 
   private
@@ -54,12 +57,13 @@ class ScheduleSync
 
   def changed_reminder?
     return false unless event.reminders&.overrides
+
     event.reminders.overrides.map(&:minutes).sort != schedule.schedule_reminders.map(&:minutes).sort
   end
 
   def setting_notification
     cleaning_job
-    return if schedule.schedule_reminders&.blank?
+    return if schedule.blank? && schedule_reminders.blank?
 
     schedule.schedule_reminders.each do |reminder|
       wait_until = schedule.start_at - reminder.minutes.minutes
@@ -72,10 +76,9 @@ class ScheduleSync
 
   def cleaning_job
     job_ids = schedule.schedule_reminders&.filter_map(&:job_id)
+    return if job_ids.blank?
 
-    if job_ids.present?
-      SolidQueue::Job.where(active_job_id: job_ids).destroy_all
-      schedule.schedule_reminders.update_all(job_id: nil)
-    end
+    SolidQueue::Job.where(active_job_id: job_ids).destroy_all
+    schedule.schedule_reminders.update_all(job_id: nil)
   end
 end

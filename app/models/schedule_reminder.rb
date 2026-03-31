@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ScheduleReminder < ApplicationRecord
   belongs_to :schedule
 

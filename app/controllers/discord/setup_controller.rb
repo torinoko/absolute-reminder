@@ -12,7 +12,7 @@ module Discord
     private
 
     def discord_oauth_url(state:)
-      client_id     = ENV['DISCORD_CLIENT_ID']
+      client_id     = ENV.fetch('DISCORD_CLIENT_ID', nil)
       scope         = 'identify'
       response_type = 'code'
 

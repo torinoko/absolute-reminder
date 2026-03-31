@@ -32,9 +32,9 @@ module Google
     end
 
     def client
-      @client ||=Signet::OAuth2::Client.new(
-        client_id: ENV['GOOGLE_CLIENT_ID'],
-        client_secret: ENV['GOOGLE_CLIENT_SECRET'],
+      @client ||= Signet::OAuth2::Client.new(
+        client_id: ENV.fetch('GOOGLE_CLIENT_ID', nil),
+        client_secret: ENV.fetch('GOOGLE_CLIENT_SECRET', nil),
         token_credential_uri: 'https://oauth2.googleapis.com/token',
         access_token: profile.access_token,
         refresh_token: profile.refresh_token

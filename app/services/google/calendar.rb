@@ -20,7 +20,7 @@ module Google
         'primary',
         q: TARGET_KEYWORD,
         time_min: Time.current.iso8601,
-        time_max: 24.hour.since.iso8601,
+        time_max: 24.hours.since.iso8601,
         single_events: true,
         order_by: 'startTime'
       )

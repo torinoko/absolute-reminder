@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 class ApplicationController < ActionController::Base
   stale_when_importmap_changes
   helper_method :current_user, :user_signed_in?, :application_name
 
   def application_name
-    ENV['APPLICATION_NAME']
+    ENV.fetch('APPLICATION_NAME', nil)
   end
 
   def current_user
