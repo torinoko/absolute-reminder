@@ -6,14 +6,14 @@ class NotifySchedulesJob < ApplicationJob
   def perform(schedule_reminder_id:)
     schedule_reminder = ScheduleReminder.find(schedule_reminder_id)
     schedule = schedule_reminder.schedule
-    start_at = schedule.start_at.strftime('%H:%M')
-    text = "#{start_at}\n#{schedule.summary}\nまであと#{time(schedule_reminder:)}だよ 🕊️"
+    start_text = "#{schedule.start_at.strftime('%H:%M')}からはじまる"
+    text = "#{start_text}\n#{schedule.summary}\nまであと#{time_text(schedule_reminder:)}だよ 🕊️"
     process_notification(schedule:, text:)
   end
 
   private
 
-  def time(schedule_reminder:)
+  def time_text(schedule_reminder:)
     hours = schedule_reminder.minutes / 60
     minutes = schedule_reminder.minutes % 60
     hours_text = "#{hours}時間" if hours.positive?
