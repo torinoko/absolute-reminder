@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_22_071922) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_01_062839) do
   create_table "line_tokens", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "expires_at", null: false
@@ -32,6 +32,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_22_071922) do
 
   create_table "schedules", force: :cascade do |t|
     t.datetime "created_at", null: false
+    t.datetime "end_at"
     t.string "google_event_id", null: false
     t.datetime "start_at", null: false
     t.string "summary", null: false

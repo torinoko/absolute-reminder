@@ -25,6 +25,7 @@ class ScheduleSync
     @event = event
     @schedule = user.schedules.find_or_initialize_by(google_event_id: event.id)
     schedule.start_at = event.start.date_time.change(sec: 0, usec: 0)
+    schedule.end_at = event.end.date_time.change(sec: 0, usec: 0)
     schedule.summary = event.summary
     schedule.schedule_reminders = initialize_schedule_reminders
 

@@ -6,5 +6,6 @@ class Schedule < ApplicationRecord
 
   validates :google_event_id, presence: true
   validates :start_at, presence: true
+  validates :end_at, presence: true
   validates :summary, presence: true
 end
