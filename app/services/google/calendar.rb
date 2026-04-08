@@ -4,13 +4,14 @@ module Google
   class Calendar
     TARGET_KEYWORD = '！'
 
-    attr_reader :service
+    attr_reader :service, :user
 
     def self.call(user)
       new(user).fetch_events
     end
 
     def initialize(user)
+      @user = user
       @service = Google::Apis::CalendarV3::CalendarService.new
       service.authorization = Google::Client.call(user)
     end
@@ -28,6 +29,13 @@ module Google
       events.items.select do |event|
         event.start.date_time.present? && later_than_now?(event:) && include_keyword?(event:)
       end
+
+    rescue Google::Apis::AuthorizationError
+      Rails.logger.info "Google access token expired error: User ID: #{user.id}"
+      service.authorization.fetch_access_token!
+      retry
+    rescue Signet::AuthorizationError => e
+      Rails.logger.info "Google access token invalid error. User ID: #{user.id}"
     end
 
     private

@@ -13,16 +13,19 @@ module Google
     end
 
     def setup_authorization
-      # アクセストークンが期限切れの場合は、リフレッシュトークンを使って再取得
-      if profile.token_expires_at.present? && profile.token_expires_at < Time.current
-        client.fetch_access_token!
+      client.on_refresh do |new_credentials|
         profile.update!(
-          access_token: client.access_token,
+          access_token: new_credentials.access_token,
           token_expires_at: Time.current + client.expires_in.to_i.seconds
         )
       end
 
       client
+    end
+
+    def refresh_token!
+      client.fetch_access_token!
+      profile.update!(access_token: client.access_token)
     end
 
     private
