@@ -4,7 +4,7 @@ Rails.application.routes.draw do
   root 'reminders#index'
   get 'auth/:provider/callback', to: 'sessions#create'
   get 'auth/failure', to: redirect('/')
-  get 'logout', to: 'sessions#destroy'
+  delete 'logout', to: 'sessions#destroy'
 
   namespace :line_bot do
     get 'setup', to: 'setup#show'
