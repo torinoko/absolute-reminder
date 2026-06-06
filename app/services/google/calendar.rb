@@ -4,41 +4,39 @@ module Google
   class Calendar
     TARGET_KEYWORD = '！'
 
-    attr_reader :service, :user
+    attr_writer :user, :service, :client
 
     def self.call(user)
-      new(user).fetch_events
+      new(user).list_events
     end
 
     def initialize(user)
       @user = user
+      @client = Google::Client.new(user)
       @service = Google::Apis::CalendarV3::CalendarService.new
-      service.authorization = Google::Client.call(user)
     end
 
-    def fetch_events
-      events = service.list_events(
-        'primary',
-        q: TARGET_KEYWORD,
-        time_min: Time.current.iso8601,
-        time_max: 24.hours.since.iso8601,
-        single_events: true,
-        order_by: 'startTime'
-      )
+    def list_events
+      events = client.execute do |auth|
+        service.authorization = auth
+        service.list_events(
+          'primary',
+          q: TARGET_KEYWORD,
+          time_min: Time.current.iso8601,
+          time_max: 24.hours.since.iso8601,
+          single_events: true,
+          order_by: 'startTime'
+        )
+      end
 
       events.items.select do |event|
         event.start.date_time.present? && later_than_now?(event:) && include_keyword?(event:)
       end
-
-    rescue Google::Apis::AuthorizationError
-      Rails.logger.info "Google access token expired error: User ID: #{user.id}"
-      service.authorization.fetch_access_token!
-      retry
-    rescue Signet::AuthorizationError => e
-      Rails.logger.info "Google access token invalid error. User ID: #{user.id}"
     end
 
     private
+
+    attr_reader :user, :service, :client
 
     def later_than_now?(event:)
       event.start.date_time > Time.current
