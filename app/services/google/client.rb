@@ -12,7 +12,7 @@ module Google
     # 使い方: client.execute { |g_client| g_client.list_calendar_events(...) }
     def execute
       yield(authorization_client)
-    rescue Signet::AuthorizationError => e
+    rescue Signet::AuthorizationError, Google::Apis::AuthorizationError => e
       # トークンエラー（期限切れなど）が発生したら、リフレッシュして1度だけ再試行する
       Rails.logger.warn("Google Access Token expired, attempting refresh...: #{e.message}")
 
