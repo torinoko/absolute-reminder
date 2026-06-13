@@ -81,7 +81,11 @@ Rails.application.configure do
   config.active_record.attributes_for_inspect = [ :id ]
 
   # Enable DNS rebinding protection and other `Host` header attacks.
-  config.hosts = [ "reminder.kamazuni-marunomi.net" ]
+  if ENV["RAILS_ALLOW_HOSTS"].present?
+    config.hosts.concat(ENV["RAILS_ALLOW_HOSTS"].split(","))
+  else
+    config.hosts = [ ".kamazuni-marunomi.net" ]
+  end
 
   config.action_controller.default_url_options = {
     host: 'reminder.kamazuni-marunomi.net',
