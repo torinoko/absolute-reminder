@@ -8,4 +8,11 @@ class LineToken < ApplicationRecord
   def expired?
     Time.current > expires_at
   end
+  def self.consume(token:, uid:)
+    record = lock.find_by(token:, uid:)
+    return if record.nil? || record.expired?
+
+    record.destroy!
+    record
+  end
 end

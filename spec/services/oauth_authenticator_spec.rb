@@ -54,6 +54,8 @@ RSpec.describe OauthAuthenticator do
     context 'pending_line_uid が設定されている場合' do
       subject { described_class.call(auth_hash, pending_line_uid: 'line_uid_456', pending_line_token: 'token') }
 
+      before { create(:line_token, uid: 'line_uid_456', token: 'token') }
+
       it 'UserProfile を 2 件作成する (Google + LINE)' do
         expect { subject }.to change(UserProfile, :count).by(2)
       end
@@ -61,6 +63,22 @@ RSpec.describe OauthAuthenticator do
       it 'LINE プロファイルが作成される' do
         subject
         expect(UserProfile.find_by(provider: 'line', uid: 'line_uid_456')).not_to be_nil
+      end
+
+      it '連携に成功したトークンを消費する' do
+        subject
+        expect(LineToken.find_by(token: 'token')).to be_nil
+      end
+
+      context 'uid と token の組み合わせが一致しない場合' do
+        subject { described_class.call(auth_hash, pending_line_uid: 'another_uid', pending_line_token: 'token') }
+
+        it 'LINE を連携せず、トークンも残す' do
+          subject
+
+          expect(UserProfile.find_by(provider: 'line')).to be_nil
+          expect(LineToken.find_by(token: 'token')).to be_present
+        end
       end
     end
 

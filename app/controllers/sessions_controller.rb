@@ -35,7 +35,15 @@ class SessionsController < ApplicationController
   def find_or_create_from_auth_hash(auth_hash)
     pending_uid   = session[:pending_line_uid]
     pending_token = session[:pending_line_token]
-    LineToken.find_by(uid: pending_uid)&.destroy
-    OauthAuthenticator.call(auth_hash, pending_line_uid: pending_uid, pending_line_token: pending_token)
+
+    user = OauthAuthenticator.call(
+      auth_hash,
+      pending_line_uid: pending_uid,
+      pending_line_token: pending_token
+    )
+
+    session.delete(:pending_line_uid)
+    session.delete(:pending_line_token)
+    user
   end
 end

@@ -21,7 +21,8 @@ class OauthAuthenticator
     ActiveRecord::Base.transaction do
       @user = find_or_create_user!
       update_or_create_user_profile!(auth_hash:)
-      update_or_create_user_profile!(auth_hash: line_auth_hash) if @pending_line_uid.present?
+      line_token = consume_line_token
+      update_or_create_user_profile!(auth_hash: line_auth_hash(line_token:)) if line_token
       user
     end
   rescue ActiveRecord::RecordInvalid => e
@@ -45,9 +46,15 @@ class OauthAuthenticator
     end
   end
 
-  def line_auth_hash
-    uid = @pending_line_uid
-    token = @pending_line_token
+  def consume_line_token
+    return if @pending_line_token.blank? || @pending_line_uid.blank?
+
+    LineToken.consume(token: @pending_line_token, uid: @pending_line_uid)
+  end
+
+  def line_auth_hash(line_token:)
+    uid = line_token.uid
+    token = line_token.token
     google_uid = user.user_profiles.find_by(provider: :google_oauth2)&.uid
     { provider: :line, uid:, google_uid:, credentials: { token: } }
   end
