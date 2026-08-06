@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_13_052342) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_04_000000) do
   create_table "line_tokens", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "expires_at", null: false
@@ -51,6 +51,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_13_052342) do
     t.string "uid", null: false
     t.datetime "updated_at", null: false
     t.integer "user_id", null: false
+    t.index ["provider", "uid"], name: "index_user_profiles_on_provider_and_uid", unique: true
     t.index ["user_id", "provider", "uid"], name: "index_user_profiles_on_user_id_and_provider_and_uid", unique: true
     t.index ["user_id"], name: "index_user_profiles_on_user_id"
   end
