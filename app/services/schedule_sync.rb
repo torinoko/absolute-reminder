@@ -10,8 +10,11 @@ class ScheduleSync
   end
 
   def call
+    window_start = Time.current
+    window_end = 24.hours.since(window_start)
     events = Google::Calendar.call(user)
     events.each { |event| sync(event) }
+    delete_stale_schedules!(event_ids: events.map(&:id), window_start:, window_end:)
   end
 
   private
@@ -71,5 +74,18 @@ class ScheduleSync
   def clean_jobs(job_ids:)
     return if job_ids.blank?
     SolidQueue::Job.where(active_job_id: job_ids).destroy_all
+  end
+
+  def delete_stale_schedules!(event_ids:, window_start:, window_end:)
+    user.schedules
+        .where(start_at: window_start..window_end)
+        .where.not(google_event_id: event_ids)
+        .find_each do |schedule|
+      ActiveRecord::Base.transaction do
+        job_ids = schedule.schedule_reminders.filter_map(&:job_id)
+        clean_jobs(job_ids:)
+        schedule.destroy!
+      end
+    end
   end
 end

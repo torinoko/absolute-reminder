@@ -38,4 +38,29 @@ RSpec.describe ScheduleSync do
     expect { described_class.call(user) }.to raise_error(ActiveRecord::RecordInvalid)
     expect(schedule.reload.schedule_reminders.pluck(:minutes)).to eq([10])
   end
+
+  it '同期結果に存在しない同期期間内の予定を削除する' do
+    stale = Schedule.create!(
+      user:, google_event_id: 'deleted-event', start_at: 2.hours.from_now, summary: '削除予定！'
+    )
+    outside_window = Schedule.create!(
+      user:, google_event_id: 'outside-window', start_at: 2.days.from_now, summary: '将来予定！'
+    )
+    allow(Google::Calendar).to receive(:call).with(user).and_return([event_with(minutes: 20)])
+
+    described_class.call(user)
+
+    expect(Schedule.exists?(stale.id)).to be(false)
+    expect(Schedule.exists?(outside_window.id)).to be(true)
+  end
+
+  it 'Google APIが失敗した場合はローカル予定を削除しない' do
+    stale = Schedule.create!(
+      user:, google_event_id: 'deleted-event', start_at: 2.hours.from_now, summary: '削除予定！'
+    )
+    allow(Google::Calendar).to receive(:call).with(user).and_raise(StandardError, 'Google API error')
+
+    expect { described_class.call(user) }.to raise_error(StandardError, 'Google API error')
+    expect(Schedule.exists?(stale.id)).to be(true)
+  end
 end

@@ -22,7 +22,7 @@ RSpec.describe Google::Calendar do
   let(:mock_service) { instance_double(Google::Apis::CalendarV3::CalendarService) }
 
   before do
-    allow(Google::Client).to receive(:call).with(user).and_return(mock_auth)
+    allow_any_instance_of(Google::Client).to receive(:execute).and_yield(mock_auth)
     allow(Google::Apis::CalendarV3::CalendarService).to receive(:new).and_return(mock_service)
     allow(mock_service).to receive(:authorization=)
     result = double('Events', items: events)

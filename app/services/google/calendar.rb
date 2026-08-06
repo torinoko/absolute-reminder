@@ -25,12 +25,13 @@ module Google
           time_min: Time.current.iso8601,
           time_max: 24.hours.since.iso8601,
           single_events: true,
+          show_deleted: true,
           order_by: 'startTime'
         )
       end
 
       events.items.select do |event|
-        event.start.date_time.present? && later_than_now?(event:) && include_keyword?(event:)
+        !cancelled?(event:) && event.start.date_time.present? && later_than_now?(event:) && include_keyword?(event:)
       end
     end
 
@@ -43,7 +44,11 @@ module Google
     end
 
     def include_keyword?(event:)
-      event.summary.include?(TARGET_KEYWORD)
+      event.summary.to_s.include?(TARGET_KEYWORD)
+    end
+
+    def cancelled?(event:)
+      event.respond_to?(:status) && event.status == 'cancelled'
     end
   end
 end
