@@ -4,7 +4,7 @@ class User < ApplicationRecord
   has_many :user_profiles, dependent: :destroy
   has_many :schedules, dependent: :destroy
 
-  validates :name, presence: true, uniqueness: true
+  validates :name, presence: true
   validates :email, presence: true, uniqueness: true
 
   def linked_with?(provider)
