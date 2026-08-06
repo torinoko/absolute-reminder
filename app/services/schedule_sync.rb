@@ -18,40 +18,46 @@ class ScheduleSync
 
   def sync(event)
     schedule = user.schedules.find_or_initialize_by(google_event_id: event.id)
-    schedule.start_at   = event.start.date_time.change(sec: 0, usec: 0)
-    schedule.summary    = event.summary
-    schedule.schedule_reminders = build_reminders(event:, schedule:)
+    previous_job_ids = schedule.schedule_reminders.filter_map(&:job_id)
 
     ActiveRecord::Base.transaction do
-      schedule.save! if schedule.changed?
-      setting_notification(schedule:) if schedule.saved_changes?
+      schedule.assign_attributes(
+        start_at: event.start.date_time.change(sec: 0, usec: 0),
+        summary: event.summary
+      )
+      schedule.save!
+
+      reminders_changed = sync_reminders!(event:, schedule:)
+      if schedule.saved_changes? || reminders_changed
+        setting_notification(schedule:, previous_job_ids:)
+      end
     end
   end
 
-  def build_reminders(event:, schedule:)
-    schedule.schedule_reminders.destroy_all if changed_reminder?(event:, schedule:)
-    return [] unless setting_reminder?(event:)
+  def sync_reminders!(event:, schedule:)
+    overrides = event.reminders&.overrides.to_a
+    current = schedule.schedule_reminders.map do |reminder|
+      [reminder.reminder_method.to_s, reminder.minutes]
+    end
+    desired = overrides.map do |override|
+      [override.reminder_method.to_s, override.minutes]
+    end
 
-    event.reminders.overrides.map do |override|
-      schedule.schedule_reminders.find_or_initialize_by(
+    return false if current.sort == desired.sort
+
+    schedule.schedule_reminders.destroy_all
+    overrides.each do |override|
+      schedule.schedule_reminders.create!(
         reminder_method: override.reminder_method,
         minutes: override.minutes
       )
     end
+
+    true
   end
 
-  def setting_reminder?(event:)
-    event.reminders&.overrides.present?
-  end
-
-  def changed_reminder?(event:, schedule:)
-    return false unless event.reminders&.overrides
-    event.reminders.overrides.map(&:minutes).sort !=
-      schedule.schedule_reminders.map(&:minutes).sort
-  end
-
-  def setting_notification(schedule:)
-    clean_jobs(schedule:)
+  def setting_notification(schedule:, previous_job_ids:)
+    clean_jobs(job_ids: previous_job_ids)
     return if schedule.schedule_reminders.blank?
 
     schedule.schedule_reminders.each do |reminder|
@@ -62,10 +68,8 @@ class ScheduleSync
     end
   end
 
-  def clean_jobs(schedule:)
-    job_ids = schedule.schedule_reminders.filter_map(&:job_id)
+  def clean_jobs(job_ids:)
     return if job_ids.blank?
     SolidQueue::Job.where(active_job_id: job_ids).destroy_all
-    schedule.schedule_reminders.update_all(job_id: nil)
   end
 end
