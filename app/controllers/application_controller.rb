@@ -19,6 +19,6 @@ class ApplicationController < ActionController::Base
   end
 
   def require_login
-    raise ActionController::Forbidden if current_user.blank?
+    head :forbidden if current_user.blank?
   end
 end

@@ -61,8 +61,8 @@ RSpec.describe 'Discord::Callbacks', type: :request do
         end
 
         it '400 を返す' do
-          get discord_cxallback_path, params: { code: 'valid_code', state: state }
-          expect(response).to have_http_status(:forbidden)
+          get discord_callback_path, params: { code: 'valid_code', state: state }
+          expect(response).to have_http_status(:bad_request)
         end
       end
 

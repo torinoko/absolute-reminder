@@ -23,7 +23,10 @@ module Discord
         return render '/error', status: :bad_request
       end
       access_token = token_response['access_token']
-      create_user_profile(access_token)
+      unless create_user_profile(access_token)
+        @message = '連携に失敗しました。'
+        return render '/error', status: :bad_request
+      end
       redirect_to root_path
     end
 
@@ -55,9 +58,19 @@ module Discord
       res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
         http.request(req)
       end
+      unless res.is_a?(Net::HTTPSuccess)
+        Rails.logger.error "Discord user profile error: #{res.code} - #{res.body}"
+        return false
+      end
+
       request_body = JSON.parse(res.body)
+      return false if request_body['id'].blank?
 
       current_user.user_profiles.find_or_create_by!(provider: :discord, uid: request_body["id"])
+      true
+    rescue JSON::ParserError => e
+      Rails.logger.error "Discord user profile JSON parse error: #{e.message}"
+      false
     end
   end
 end
