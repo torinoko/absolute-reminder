@@ -22,7 +22,7 @@ module Line
         response
       rescue StandardError => e
         Rails.logger.error "LINE send message error: #{e.class} - #{e.message}"
-        nil
+        raise
       end
     end
 

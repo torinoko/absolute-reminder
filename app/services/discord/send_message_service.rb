@@ -23,19 +23,17 @@ module Discord
       if response.is_a?(Net::HTTPSuccess)
         JSON.parse(response.body)['id']
       else
-        Rails.logger.error("Discord DM channel error: #{response.code} - #{response.body}")
-        nil
+        raise "Discord DM channel error: #{response.code} - #{response.body}"
       end
     rescue JSON::ParserError => e
-      Rails.logger.error("Discord JSON parse error: #{e.message}")
-      nil
+      raise "Discord JSON parse error: #{e.message}"
     end
 
     def send_message(channel_id, text)
       response = post_request("/channels/#{channel_id}/messages", { content: text })
 
       unless response.is_a?(Net::HTTPSuccess)
-        Rails.logger.error("Discord message send error: #{response.code} - #{response.body}")
+        raise "Discord message send error: #{response.code} - #{response.body}"
       end
 
       response

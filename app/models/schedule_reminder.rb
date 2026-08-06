@@ -2,6 +2,7 @@
 
 class ScheduleReminder < ApplicationRecord
   belongs_to :schedule
+  has_many :notification_deliveries, dependent: :destroy
 
   enum :reminder_method, { popup: 0, email: 1 }
 

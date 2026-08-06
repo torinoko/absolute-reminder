@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_06_005448) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_06_011321) do
   create_table "line_tokens", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "expires_at", null: false
@@ -18,6 +18,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_06_005448) do
     t.string "uid", null: false
     t.datetime "updated_at", null: false
     t.index ["token"], name: "index_line_tokens_on_token", unique: true
+  end
+
+  create_table "notification_deliveries", force: :cascade do |t|
+    t.integer "attempts", default: 0, null: false
+    t.string "channel", null: false
+    t.datetime "claimed_at"
+    t.datetime "created_at", null: false
+    t.text "last_error"
+    t.integer "schedule_reminder_id", null: false
+    t.datetime "sent_at"
+    t.string "status", default: "pending", null: false
+    t.datetime "updated_at", null: false
+    t.index ["schedule_reminder_id", "channel"], name: "index_notification_deliveries_on_reminder_and_channel", unique: true
+    t.index ["schedule_reminder_id"], name: "index_notification_deliveries_on_schedule_reminder_id"
   end
 
   create_table "schedule_reminders", force: :cascade do |t|
@@ -64,6 +78,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_06_005448) do
     t.index ["email"], name: "index_users_on_email", unique: true
   end
 
+  add_foreign_key "notification_deliveries", "schedule_reminders"
   add_foreign_key "schedule_reminders", "schedules"
   add_foreign_key "schedules", "users"
   add_foreign_key "user_profiles", "users"

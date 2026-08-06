@@ -26,8 +26,8 @@ RSpec.describe Line::SendMessageService do
     context 'push_message が例外を発生させる場合' do
       before { allow(mock_client).to receive(:push_message).and_raise(StandardError, 'API error') }
 
-      it 'nil を返す' do
-        expect(subject).to be_nil
+      it '例外を呼び出し元へ返す' do
+        expect { subject }.to raise_error(StandardError, 'API error')
       end
     end
   end

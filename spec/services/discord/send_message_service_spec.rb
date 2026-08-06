@@ -30,8 +30,8 @@ RSpec.describe Discord::SendMessageService do
           .to_return(status: 403, body: 'Forbidden')
       end
 
-      it 'nil を返す' do
-        expect(subject).to be_nil
+      it '例外を呼び出し元へ返す' do
+        expect { subject }.to raise_error(RuntimeError, /Discord DM channel error/)
       end
     end
 
@@ -42,8 +42,8 @@ RSpec.describe Discord::SendMessageService do
                      headers: { 'Content-Type' => 'application/json' })
       end
 
-      it 'nil を返す' do
-        expect(subject).to be_nil
+      it '例外を呼び出し元へ返す' do
+        expect { subject }.to raise_error(RuntimeError, /Discord JSON parse error/)
       end
     end
   end
